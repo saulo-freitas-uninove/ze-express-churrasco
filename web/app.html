@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#FFCC00">
+<title>Zé Express Churrasco</title>
+<style>
+  :root{--preto:#000;--amarelo:#FFCC00;--brasa:#FF5A1F;--verde:#1FA968;--azul:#1D8FD1;--cinza:#6F6B5E;--linha:#E7E3D6;--fundo:#fff;
+    --disp:"Bahnschrift Condensed","Bahnschrift","Arial Narrow","Roboto Condensed",system-ui,sans-serif;
+    --txt:"Bahnschrift","Segoe UI",system-ui,-apple-system,Roboto,sans-serif}
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  body{font-family:var(--txt);background:var(--fundo);color:var(--preto);font-size:16px;line-height:1.4;min-height:100vh;padding-bottom:calc(96px + env(safe-area-inset-bottom))}
+  .topo{background:var(--amarelo);padding:calc(14px + env(safe-area-inset-top)) 18px 14px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:5}
+  .topo b{font-family:var(--disp);font-size:22px;line-height:1;white-space:nowrap}
+  .topo button{margin-left:auto;white-space:nowrap;background:none;border:0;font:inherit;font-size:14px;text-decoration:underline;cursor:pointer}
+  main{max-width:560px;margin:0 auto;padding:18px}
+  h1{font-family:var(--disp);font-size:34px;line-height:1.02;margin:6px 0 10px;font-weight:700}
+  h2{font-family:var(--disp);font-size:22px;margin:22px 0 8px;font-weight:600}
+  p.sub{color:var(--cinza);margin-bottom:16px}
+  label{display:block;font-size:14px;color:var(--cinza);margin:12px 0 5px}
+  input,select{width:100%;font:inherit;font-size:18px;padding:13px 14px;border:2px solid var(--linha);border-radius:10px;background:#fff;color:#000}
+  input:focus,select:focus{outline:none;border-color:#000}
+  .linha2{display:grid;grid-template-columns:1.5fr 1fr;gap:10px}
+  .btn{display:block;width:100%;font:inherit;font-family:var(--disp);font-size:22px;font-weight:600;padding:15px;border-radius:12px;border:0;background:#000;color:var(--amarelo);cursor:pointer;margin-top:18px}
+  .btn:disabled{opacity:.35}
+  .btn.sec{background:#fff;color:#000;border:2px solid #000}
+  .btn:focus-visible,button:focus-visible{outline:3px solid var(--brasa);outline-offset:2px}
+  .hero{background:var(--amarelo);margin:-18px -18px 18px;padding:26px 18px 30px}
+  .hero h1{font-size:44px}
+  .hero p{font-size:17px;max-width:30ch}
+  .aviso{font-size:13px;color:var(--cinza);margin-top:14px}
+
+  .kit{border:2px solid var(--linha);border-radius:14px;padding:14px;margin-bottom:10px;display:grid;grid-template-columns:1fr auto;gap:6px 12px}
+  .kit.sel{border-color:#000;background:#FFFBEA}
+  .kit h3{font-family:var(--disp);font-size:21px;line-height:1.1}
+  .kit p{grid-column:1/3;font-size:14px;color:var(--cinza)}
+  .kit .preco{font-weight:700;font-size:17px;align-self:start}
+  .tag{grid-column:1/3;justify-self:start;font-size:12px;background:var(--brasa);color:#fff;border-radius:4px;padding:2px 7px}
+  .item{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--linha)}
+  .item span{flex:1}
+  .item small{display:block;color:var(--cinza);font-size:14px}
+  .step{display:flex;align-items:center;gap:0;border:2px solid #000;border-radius:999px;overflow:hidden;grid-column:2;grid-row:1}
+  .step button{width:38px;height:36px;border:0;background:#fff;font-size:22px;cursor:pointer;line-height:1}
+  .step b{min-width:26px;text-align:center;font-variant-numeric:tabular-nums}
+  .kit .step{grid-row:auto;grid-column:2;justify-self:end}
+
+  .barra{position:fixed;left:0;right:0;bottom:0;background:#000;color:#fff;padding:12px 18px calc(12px + env(safe-area-inset-bottom));display:flex;align-items:center;gap:14px;z-index:6}
+  .barra div{flex:1;font-size:14px;color:#BDB8A6}
+  .barra div b{display:block;color:#fff;font-size:20px}
+  .barra .btn{width:auto;margin:0;padding:12px 20px;background:var(--amarelo);color:#000;font-size:20px}
+
+  .local{background:#F4F2EA;border-radius:10px;padding:10px 12px;margin-top:14px;font-size:15px}
+  .opcao{display:block;border:2px solid var(--linha);border-radius:14px;padding:16px;margin-top:12px;cursor:pointer;position:relative;color:#000;font-size:16px}
+  .opcao input{position:absolute;opacity:0}
+  .opcao.sel{border-color:#000;box-shadow:inset 0 0 0 1px #000}
+  .opcao .tit{font-family:var(--disp);font-size:22px;display:flex;justify-content:space-between;align-items:baseline}
+  .opcao .tempo{font-family:var(--disp);font-size:40px;line-height:1;margin:8px 0 4px}
+  .opcao .tempo small{font-size:18px}
+  .opcao .det{font-size:14px;color:var(--cinza)}
+  .opcao .loja{font-size:15px;margin-top:6px}
+  .chip{display:inline-block;font-size:12px;border-radius:4px;padding:2px 7px;margin-left:6px;vertical-align:2px}
+  .chip.zp{background:var(--amarelo);color:#000}.chip.cv{background:var(--brasa);color:#fff}
+  .erro{color:#B42318;margin-top:10px;font-size:15px}
+  .tg{display:flex;gap:8px}
+  .tg button{flex:1;font:inherit;font-size:17px;padding:12px;border:2px solid var(--linha);border-radius:10px;background:#fff;color:#000;cursor:pointer}
+  .tg button.on{border-color:#000;background:#000;color:var(--amarelo);font-weight:700}
+  .pergunta{margin-top:18px;border-top:1px solid var(--linha);padding-top:14px}
+  .pergunta label{margin-top:0}
+
+  .ok{background:var(--amarelo);margin:-18px -18px 16px;padding:22px 18px}
+  .ok small{font-size:14px}
+  .ok h1{font-size:38px;margin:4px 0}
+  .cont{display:flex;align-items:baseline;gap:8px;margin-top:8px}
+  .cont b{font-family:var(--disp);font-size:64px;line-height:.9}
+  .linha-t{list-style:none;margin:18px 0 4px}
+  .linha-t li{position:relative;padding:0 0 16px 30px;color:#A7A293}
+  .linha-t li::before{content:"";position:absolute;left:6px;top:4px;width:12px;height:12px;border-radius:50%;border:2px solid #C9C4B3;background:#fff}
+  .linha-t li::after{content:"";position:absolute;left:12px;top:18px;bottom:0;width:2px;background:#E4E0D3}
+  .linha-t li:last-child::after{display:none}
+  .linha-t li.feito{color:#000}.linha-t li.feito::before{background:#000;border-color:#000}
+  .linha-t li.atual{color:#000;font-weight:700}.linha-t li.atual::before{background:var(--brasa);border-color:var(--brasa)}
+  .mini{width:100%;aspect-ratio:4/3;border-radius:14px;background:#161510;margin-top:10px;display:block}
+  .mini .m-cidade{fill:#1A1914;stroke:#3A372D;stroke-width:1}
+  .mini .m-grade line{stroke:#25241D;stroke-width:.5}
+  .mini .m-agua{fill:#10222C}.mini .m-rio{fill:none;stroke:#23536B;stroke-width:3}
+  .mini .m-via{fill:none;stroke:#3B382D;stroke-width:2}
+  .mini .loja-halo{fill:none}
+  .mini .loja.ze_point .loja-ico{fill:#FFCC00;stroke:#000;stroke-width:2}
+  .mini .loja-letra{font-size:13px;font-weight:700;fill:#000}
+  .mini .loja.conveniado .loja-ico{fill:#000;stroke:#FF5A1F;stroke-width:3.5}
+  .mini .loja-badge{display:none}
+  .resumo{margin-top:16px;border-top:1px solid var(--linha);padding-top:12px;font-size:15px}
+  .resumo div{display:flex;justify-content:space-between;padding:3px 0}
+  .resumo .tot{font-weight:700;font-size:18px;border-top:1px solid var(--linha);margin-top:6px;padding-top:8px}
+  .hide{display:none!important}
+</style>
+</head>
+<body>
+<div class="topo"><b>Zé Express Churrasco</b><button id="bSair" class="hide">Trocar dados</button></div>
+<main id="app"></main>
+<div class="barra hide" id="barra"><div><span id="bQtd">0 itens</span><b id="bTot">R$ 0,00</b></div><button class="btn" id="bCont">Continuar</button></div>
+
+<script src="/web/mapa.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+const brl = v => v.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const LS = { get:k => { try { return localStorage.getItem("zx_"+k); } catch(e){ return null; } },
+             set:(k,v) => { try { v==null ? localStorage.removeItem("zx_"+k) : localStorage.setItem("zx_"+k, v); } catch(e){} } };
+let CFG, S = { nome: LS.get("nome") || "", aluno: LS.get("aluno"), mora: LS.get("mora") || "", usaria: LS.get("usaria"), itens:{}, cep:"", numero:"", bairro_idx:"", cot:null, modo:"entrega", pedido: +(LS.get("pedido")||0) };
+let timer = null, offset = 0, mini = null;
+
+async function api(u, body){
+  const r = await fetch(u, body ? {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)} : {});
+  return r.json();
+}
+
+async function init(){
+  CFG = await api("/api/config");
+  $("bSair").onclick = () => { S.nome = ""; S.aluno = null; S.mora = ""; LS.set("nome", null); LS.set("aluno", null); LS.set("mora", null); telaNome(); };
+  if (S.pedido) return telaPedido();
+  S.nome ? telaCatalogo() : telaNome();
+}
+function barra(on, txt, fn, habil=true){
+  $("barra").classList.toggle("hide", !on);
+  if (!on) return;
+  $("bCont").textContent = txt; $("bCont").onclick = fn; $("bCont").disabled = !habil;
+}
+function pararTimer(){ if (timer){ clearInterval(timer); timer = null; } }
+
+/* ---------- 1. Nome ---------- */
+function telaNome(){
+  pararTimer(); $("bSair").classList.add("hide"); barra(false);
+  $("app").innerHTML = `
+    <div class="hero"><h1>Churrasco pronto na hora que você quiser</h1>
+    <p>Monte seu kit, escolha retirar no ponto mais perto ou receber em casa.</p></div>
+    <label for="nome">Seu nome</label>
+    <input id="nome" autocomplete="given-name" maxlength="40" value="${esc(S.nome)}" placeholder="Como aparece no telão">
+    <label>Você é aluno(a)?</label>
+    <div class="tg" id="tgAluno"><button type="button" data-v="1" class="${S.aluno==="1"?"on":""}">Sim, sou aluno(a)</button><button type="button" data-v="0" class="${S.aluno==="0"?"on":""}">Não</button></div>
+    <label for="mora">Onde você mora?</label>
+    <input id="mora" maxlength="60" value="${esc(S.mora)}" placeholder="Cidade ou bairro">
+    <p class="erro hide" id="erroNome"></p>
+    <button class="btn" id="go">Começar pedido</button>
+    <p class="aviso">Simulação do Projeto Integrador UNINOVE. Nenhum pagamento é feito. Seu nome e bairro aparecem no telão da apresentação; as respostas ficam no registro de check-ins da pesquisa.</p>`;
+  toggle("tgAluno", v => { S.aluno = v; LS.set("aluno", v); });
+  const go = () => {
+    const n = $("nome").value.trim(), m = $("mora").value.trim();
+    const falta = !n ? "Digite seu nome." : S.aluno == null ? "Responda se é aluno(a)." : !m ? "Diga onde você mora." : "";
+    $("erroNome").textContent = falta; $("erroNome").classList.toggle("hide", !falta);
+    if (falta){ (!n ? $("nome") : $("mora")).focus(); return; }
+    S.nome = n; S.mora = m; LS.set("nome", n); LS.set("mora", m); telaCatalogo();
+  };
+  $("go").onclick = go; $("nome").onkeydown = $("mora").onkeydown = e => { if (e.key === "Enter") go(); };
+}
+
+function toggle(id, fn){
+  document.querySelectorAll("#" + id + " button").forEach(b => b.onclick = () => {
+    document.querySelectorAll("#" + id + " button").forEach(x => x.classList.toggle("on", x === b)); fn(b.dataset.v);
+  });
+}
+
+/* ---------- 2. Catálogo ---------- */
+function totalItens(){ let q=0,v=0; for (const id in S.itens){ const c = CFG.catalogo.find(x=>x.id===id); q += S.itens[id]; v += c.preco*S.itens[id]; } return {q,v}; }
+function telaCatalogo(){
+  pararTimer(); $("bSair").classList.remove("hide");
+  const grupos = ["Kits","Adicionais","Bebidas"];
+  $("app").innerHTML = `<h1>Oi, ${esc(S.nome.split(" ")[0])}. Monte seu churrasco</h1>` + grupos.map(g => {
+    const its = CFG.catalogo.filter(c => c.grupo === g);
+    if (g === "Kits") return `<h2>Kits</h2>` + its.map(c => `
+      <div class="kit" id="c${c.id}"><h3>${esc(c.nome)}</h3><span class="preco">${brl(c.preco)}</span>
+      <p>${esc(c.desc)}</p>${c.onde==="conveniado" ? `<span class="tag">Corte na hora no açougue conveniado</span>` : ""}
+      ${stepper(c.id)}</div>`).join("");
+    return `<h2>${g}</h2>` + its.map(c => `<div class="item" id="c${c.id}"><span>${esc(c.nome)}<small>${brl(c.preco)}</small></span>${stepper(c.id)}</div>`).join("");
+  }).join("");
+  document.querySelectorAll("[data-id]").forEach(b => b.onclick = () => {
+    const id = b.dataset.id, d = +b.dataset.d; const n = Math.max(0, Math.min(20, (S.itens[id]||0) + d));
+    if (n) S.itens[id] = n; else delete S.itens[id];
+    $("q"+id).textContent = n; $("c"+id).classList.toggle("sel", n>0); atualizaBarra();
+  });
+  Object.keys(S.itens).forEach(id => $("c"+id) && $("c"+id).classList.add("sel"));
+  atualizaBarra();
+}
+function stepper(id){ return `<div class="step"><button data-id="${id}" data-d="-1" aria-label="Menos">−</button><b id="q${id}">${S.itens[id]||0}</b><button data-id="${id}" data-d="1" aria-label="Mais">+</button></div>`; }
+function atualizaBarra(){
+  const t = totalItens();
+  $("bQtd").textContent = t.q + (t.q===1 ? " item" : " itens"); $("bTot").textContent = brl(t.v);
+  barra(true, "Continuar", telaEndereco, t.q > 0);
+}
+
+/* ---------- 3. Endereço e opções ---------- */
+function telaEndereco(){
+  barra(true, "Fazer pedido", enviar, false);
+  $("app").innerHTML = `
+    <h1>Onde vai ser o churrasco?</h1>
+    <p class="sub">Com o CEP a gente acha o ponto mais perto e calcula o tempo.</p>
+    <div class="linha2">
+      <div><label for="cep">CEP</label><input id="cep" inputmode="numeric" autocomplete="postal-code" placeholder="00000-000" value="${esc(S.cep)}"></div>
+      <div><label for="num">Número</label><input id="num" inputmode="numeric" value="${esc(S.numero)}"></div>
+    </div>
+    <div id="boxBairro" class="${S.bairro_idx!=="" ? "" : "hide"}"><label for="bairro">Esse CEP está fora da área da simulação. Escolha um bairro de São Paulo</label>
+      <select id="bairro"><option value="">Selecione</option>${CFG.bairros.map(b => `<option value="${b.idx}" ${String(b.idx)===String(S.bairro_idx)?"selected":""}>${esc(b.nome)}</option>`).join("")}</select></div>
+    <button class="btn sec" id="calc">Calcular tempo</button>
+    <div id="res"></div>`;
+  $("cep").oninput = e => { let v = e.target.value.replace(/\D/g,"").slice(0,8); e.target.value = v.length>5 ? v.slice(0,5)+"-"+v.slice(5) : v; if (v.length===8){ $("boxBairro").classList.add("hide"); $("bairro").value=""; } };
+  $("calc").onclick = cotar;
+  $("bairro").onchange = cotar;
+  if (S.cot) mostrarCot();
+}
+async function cotar(){
+  S.cep = $("cep").value; S.numero = $("num").value; S.bairro_idx = $("boxBairro").classList.contains("hide") ? "" : $("bairro").value;
+  if (!S.bairro_idx && S.cep.replace(/\D/g,"").length !== 8){ $("res").innerHTML = `<p class="erro">Digite o CEP com 8 números.</p>`; return; }
+  $("res").innerHTML = `<p class="sub" style="margin-top:14px">Calculando…</p>`;
+  const r = await api("/api/cotacao", {itens:S.itens, cep:S.cep, numero:S.numero, bairro_idx:S.bairro_idx});
+  if (!r.ok){
+    S.cot = null; barra(true, "Fazer pedido", enviar, false);
+    if (r.erro === "fora"){ $("boxBairro").classList.remove("hide"); $("res").innerHTML = ""; $("bairro").focus(); }
+    else $("res").innerHTML = `<p class="erro">${esc(r.erro)}</p>`;
+    return;
+  }
+  S.cot = r; mostrarCot();
+}
+function chip(t){ return t==="ze_point" ? `<span class="chip zp">Zé Point</span>` : `<span class="chip cv">Conveniado</span>`; }
+function mostrarCot(){
+  const r = S.cot, R = r.retirada, E = r.entrega;
+  const fila = o => o.espera_min > 0 ? `, ${Math.round(o.espera_min)} min de fila` : "";
+  $("res").innerHTML = `
+    <div class="local">Endereço localizado em <b>${esc(r.local.bairro)}</b></div>
+    <label class="opcao ${S.modo==="entrega"?"sel":""}"><input type="radio" name="modo" value="entrega" ${S.modo==="entrega"?"checked":""}>
+      <div class="tit">Receber em casa <span>${brl(E.total)}</span></div>
+      <div class="tempo">${E.total_min} <small>min até chegar</small></div>
+      <div class="det">Preparo ${Math.round(E.preparo_min)} min${fila(E)} + trajeto de ${Math.round(E.desloc_min)} min (${String(E.dist_km).replace(".",",")} km)</div>
+      <div class="det">${E.taxa ? "Taxa de entrega " + brl(E.taxa) : "Entrega grátis"}</div>
+      <div class="loja">${esc(E.loja_nome)} ${chip(E.loja_tipo)}</div></label>
+    <label class="opcao ${S.modo==="retirada"?"sel":""}"><input type="radio" name="modo" value="retirada" ${S.modo==="retirada"?"checked":""}>
+      <div class="tit">Retirar no ponto <span>${brl(R.total)}</span></div>
+      <div class="tempo">${R.total_min} <small>min para ficar pronto</small></div>
+      <div class="det">Preparo ${Math.round(R.preparo_min)} min${fila(R)}. Ponto a ${String(R.dist_km).replace(".",",")} km, uns ${Math.round(R.desloc_cli_min)} min de carro. ${CFG.desconto_retirada_pct}% de desconto</div>
+      <div class="loja">${esc(R.loja_nome)} ${chip(R.loja_tipo)}</div></label>
+    <div class="pergunta"><label>Última pergunta: você usaria o Zé Express Churrasco de verdade?</label>
+      <div class="tg" id="tgUsaria"><button type="button" data-v="1" class="${S.usaria==="1"?"on":""}">Sim, usaria</button><button type="button" data-v="0" class="${S.usaria==="0"?"on":""}">Não usaria</button></div></div>`;
+  document.querySelectorAll("input[name=modo]").forEach(i => i.onchange = () => {
+    S.modo = i.value; document.querySelectorAll(".opcao").forEach(o => o.classList.toggle("sel", o.querySelector("input").checked)); rodape(); });
+  toggle("tgUsaria", v => { S.usaria = v; LS.set("usaria", v); rodape(); });
+  rodape();
+}
+function rodape(){ const o = S.cot[S.modo]; $("bTot").textContent = brl(o.total); barra(true, S.usaria == null ? "Responda acima" : "Fazer pedido", enviar, S.usaria != null); }
+async function enviar(){
+  $("bCont").disabled = true;
+  const r = await api("/api/pedido", {nome:S.nome, itens:S.itens, cep:S.cep, numero:S.numero, bairro_idx:S.bairro_idx, modo:S.modo, aluno:S.aluno, mora:S.mora, usaria:S.usaria});
+  if (!r.ok){ $("bCont").disabled = false; $("res").insertAdjacentHTML("beforeend", `<p class="erro">${esc(r.erro === "fora" ? "Informe um endereço válido." : r.erro)}</p>`); return; }
+  S.pedido = r.pedido.id; LS.set("pedido", S.pedido); S.itens = {}; S.cot = null;
+  telaPedido();
+}
+
+/* ---------- 4. Acompanhamento ---------- */
+async function telaPedido(){
+  barra(false); $("bSair").classList.add("hide"); pararTimer();
+  const r = await api("/api/pedido?id=" + S.pedido);
+  if (!r.ok){ S.pedido = 0; LS.set("pedido", null); return S.nome ? telaCatalogo() : telaNome(); }
+  offset = r.agora - Date.now()/1000;
+  const p = r.pedido, ent = p.modo === "entrega";
+  $("app").innerHTML = `
+    <div class="ok"><small>Pedido ${esc(p.codigo)}</small><h1 id="stTit"></h1>
+      <div>Check-in feito no <b>${esc(p.loja_nome)}</b></div>
+      <div class="cont"><b id="cnt">--</b><span id="cntTxt"></span></div></div>
+    <ul class="linha-t" id="linha"></ul>
+    <button class="btn hide" id="bRet">Confirmar que retirei</button>
+    <svg class="mini" id="mini"></svg>
+    <div class="resumo">${Object.entries(p.itens).map(([id,q]) => { const c = CFG.catalogo.find(x=>x.id===id); return `<div><span>${q}× ${esc(c.nome)}</span><span>${brl(c.preco*q)}</span></div>`; }).join("")}
+      ${p.desconto ? `<div><span>Desconto retirada</span><span>−${brl(p.desconto)}</span></div>` : ""}
+      ${ent ? `<div><span>Taxa de entrega</span><span>${p.taxa ? brl(p.taxa) : "grátis"}</span></div>` : ""}
+      <div class="tot"><span>Total</span><span>${brl(p.total)}</span></div></div>
+    <button class="btn sec" id="novo">Fazer outro pedido</button>`;
+  $("novo").onclick = () => { S.pedido = 0; LS.set("pedido", null); telaCatalogo(); };
+  $("bRet").onclick = async () => { const x = await api("/api/retirar", {id:p.id}); if (x.pedido) Object.assign(p, x.pedido); };
+
+  const loja = CFG.lojas.find(l => l.id === p.loja_id);
+  mini = ZeMapa.criar($("mini"), [loja], {semZonas:true, semNomes:true, sufixo:"A"});
+  const [lx,ly] = ZeMapa.xy(loja.lat, loja.lon), [dx,dy] = ZeMapa.xy(p.lat, p.lon);
+  const pad = 45, x0 = Math.min(lx,dx)-pad, y0 = Math.min(ly,dy)-pad, w = Math.max(Math.abs(lx-dx)+2*pad, 240), h = Math.max(Math.abs(ly-dy)+2*pad, 180);
+  const cw = Math.max(w, h*4/3), ch = cw*3/4;
+  $("mini").setAttribute("viewBox", `${(x0+w/2-cw/2).toFixed(1)} ${(y0+h/2-ch/2).toFixed(1)} ${cw.toFixed(1)} ${ch.toFixed(1)}`);
+  const C = mini.camadas, el = ZeMapa.el;
+  const XL = "http://www.w3.org/1999/xlink";
+  const usar = (parent, id) => { const u = el("use",{}, parent); u.setAttributeNS(XL,"href",id); u.setAttribute("href",id); return u; };
+  let rt, feita, vei, ico;
+  if (ent){
+    rt = ZeMapa.rota(loja, p);
+    el("polyline",{points:ZeMapa.str(rt.p),fill:"none",stroke:"#6E6A5A","stroke-width":2,"stroke-dasharray":"4 5"}, C.rotas);
+    feita = el("polyline",{points:"",fill:"none",stroke:"#FF5A1F","stroke-width":4,"stroke-linejoin":"round","stroke-linecap":"round"}, C.rotas);
+    vei = el("g",{transform:`translate(${lx+16},${ly+12})`}, C.motos); el("circle",{r:18,fill:"#FFCC00",opacity:.2}, vei);
+    ico = usar(vei, "#icoMotoA"); ico.setAttribute("transform","scale(1.3)");
+  } else {
+    rt = ZeMapa.rota(p, loja);
+    el("polyline",{points:ZeMapa.str(rt.p),fill:"none",stroke:"#5CC8FF","stroke-width":2,"stroke-dasharray":"4 5",opacity:.7}, C.rotas);
+    feita = el("polyline",{points:"",fill:"none",stroke:"#5CC8FF","stroke-width":4,"stroke-linejoin":"round","stroke-linecap":"round"}, C.rotas);
+    vei = el("g",{style:"display:none"}, C.motos); ico = usar(vei, "#icoCarroA");
+  }
+  const destG = el("g",{transform:`translate(${dx},${dy})`}, C.destinos);
+  usar(destG, "#icoCasaA");
+  const chk = el("g",{transform:"translate(8,-9)",style:"display:none"}, destG);
+  el("circle",{r:7,fill:"#1FA968",stroke:"#000","stroke-width":1.5}, chk);
+  el("path",{d:"M-3.2,0 L-1,2.4 L3.4,-2.6",fill:"none",stroke:"#000","stroke-width":2,"stroke-linecap":"round","stroke-linejoin":"round"}, chk);
+  const mover = (pt) => { vei.style.display = ""; vei.setAttribute("transform", `translate(${pt.x.toFixed(1)},${pt.y.toFixed(1)})`); ico.setAttribute("transform", `rotate(${((pt.ang||0)*180/Math.PI).toFixed(1)}) scale(1.3)`); };
+
+  const etapas = ent ? [["fila","Pedido recebido"],["preparo","Separando e preparando o kit"],["rota","Moto a caminho"],["entregue","Entregue. Bom churrasco!"]]
+                     : [["fila","Pedido recebido"],["preparo","Separando e preparando o kit"],["pronto","Pronto para retirar"],["retirado","Retirado. Bom churrasco!"]];
+  const titulos = {fila:"Na fila do ponto", preparo:"Em preparo", rota:"Moto a caminho", entregue:"Entregue", pronto:"Pronto para retirar", retirado:"Retirado"};
+  let ultimoPoll = 0;
+  const tick = async () => {
+    const t = Date.now()/1000 + offset;
+    if (t - ultimoPoll > 3){ ultimoPoll = t; try { const x = await api("/api/pedido?id=" + p.id); if (x.ok) Object.assign(p, x.pedido); } catch(e){} }
+    // status calculado localmente para ficar fluido
+    const simMin = s => Math.max(0, Math.ceil(s * CFG.escala / 60));
+    const fimReal = p.t_retirado || p.t_fim;
+    let st = t < p.t_prep_ini ? "fila" : t < p.t_prep_fim ? "preparo" : ent ? (t < p.t_fim ? "rota" : "entregue") : (t < fimReal ? "pronto" : "retirado");
+    const idx = etapas.findIndex(e => e[0] === st);
+    $("stTit").textContent = titulos[st];
+    $("linha").innerHTML = etapas.map((e,i) => `<li class="${i<idx?"feito":i===idx?"atual":""}">${e[1]}</li>`).join("");
+    if (ent){
+      if (st === "rota"){ const f = (t - p.t_saida)/(p.t_fim - p.t_saida); mover(ZeMapa.ponto(rt, f)); feita.setAttribute("points", ZeMapa.str(ZeMapa.trecho(rt, f)));
+        $("cnt").textContent = Math.max(1, simMin(p.t_fim - t)); $("cntTxt").textContent = "min para a moto chegar"; }
+      else if (st === "entregue"){ vei.style.display = "none"; feita.setAttribute("points", ZeMapa.str(rt.p)); chk.style.display = ""; $("cnt").textContent = "✓"; $("cntTxt").textContent = "entregue"; }
+      else { $("cnt").textContent = simMin(p.t_fim - t); $("cntTxt").textContent = st === "fila" ? "min para chegar, aguardando o ponto" : "min para chegar"; }
+    } else {
+      const chegada = p.t_saida + p.desloc_min*60/CFG.escala;
+      if (st === "retirado"){ vei.style.display = "none"; feita.setAttribute("points", ZeMapa.str(rt.p)); chk.style.display = ""; $("cnt").textContent = "✓"; $("cntTxt").textContent = "retirado, bom churrasco"; }
+      else {
+        if (t >= p.t_saida && t < chegada){ const f = (t - p.t_saida)/(chegada - p.t_saida); mover(ZeMapa.ponto(rt, f)); feita.setAttribute("points", ZeMapa.str(ZeMapa.trecho(rt, f))); }
+        else if (t >= chegada){ mover({x:lx-16, y:ly+12, ang:0}); feita.setAttribute("points", ZeMapa.str(rt.p)); }
+        if (st !== "pronto"){ $("cnt").textContent = simMin(p.t_prep_fim - t); $("cntTxt").textContent = t >= chegada ? "min para ficar pronto, você já está no ponto" : t >= p.t_saida ? "min para ficar pronto, você já saiu de casa" : "min para ficar pronto"; }
+        else if (t < chegada){ $("cnt").textContent = Math.max(1, simMin(chegada - t)); $("cntTxt").textContent = "min até você chegar ao ponto"; }
+        else { $("cnt").textContent = "✓"; $("cntTxt").textContent = `pronto, retire no balcão do ${p.loja_nome}`; }
+      }
+    }
+    $("bRet").classList.toggle("hide", st !== "pronto");
+  };
+  tick(); timer = setInterval(tick, 250);
+}
+init();
+</script>
+</body>
+</html>

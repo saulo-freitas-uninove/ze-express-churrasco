@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Zé Express Churrasco · Central de operações</title>
+<style>
+  :root{
+    --preto:#000; --amarelo:#FFCC00; --brasa:#FF5A1F; --verde:#3DD68C; --azul:#5CC8FF;
+    --painel:#15140F; --linha:#2B2922; --cinza:#8F8B7C; --papel:#FFF6D6;
+    --disp:"Bahnschrift Condensed","Bahnschrift","Arial Narrow","Roboto Condensed",sans-serif;
+    --txt:"Bahnschrift","Segoe UI",system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;background:var(--preto);color:var(--papel);font-family:var(--txt);overflow:hidden}
+  .tela{display:grid;grid-template-columns:1fr 500px;grid-template-rows:auto 1fr;height:100vh}
+  header{grid-column:1/3;display:flex;align-items:center;gap:22px;padding:14px 26px;border-bottom:1px solid var(--linha)}
+  .marca{font-family:var(--disp);font-weight:700;font-size:40px;letter-spacing:-.5px;line-height:1;color:var(--amarelo)}
+  .marca small{display:block;font-family:var(--txt);font-weight:400;font-size:15px;color:var(--cinza);letter-spacing:0;margin-top:4px}
+  .ferr{margin-left:auto;display:flex;gap:8px;opacity:.3;transition:opacity .2s}
+  .ferr:hover,.ferr:focus-within{opacity:1}
+  .ferr button{font:inherit;font-size:13px;background:#000;color:var(--papel);border:1px solid #4a473c;border-radius:5px;padding:7px 11px;cursor:pointer}
+  .ferr button.on{background:var(--brasa);border-color:var(--brasa);color:#000}
+  .ferr button:focus-visible{outline:2px solid var(--amarelo)}
+  .relogio{text-align:right;font-family:var(--disp);font-size:40px;line-height:1;font-variant-numeric:tabular-nums}
+  .relogio small{display:block;font-family:var(--txt);font-size:14px;color:var(--cinza);margin-top:4px}
+
+  .mapa{position:relative;overflow:hidden}
+  .mapa svg{position:absolute;inset:0;width:100%;height:100%}
+  .m-cidade{fill:#1A1914;stroke:#3A372D;stroke-width:1.5}
+  .m-grade line{stroke:#24231C;stroke-width:.7}
+  .m-agua{fill:#10222C;stroke:#1C3A48;stroke-width:1}
+  .m-rio{fill:none;stroke:#23536B;stroke-width:4;stroke-linecap:round;stroke-linejoin:round}
+  .m-via{fill:none;stroke:#3B382D;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+  .m-zona{font-family:var(--disp);font-size:44px;font-weight:700;fill:#2E2C24;letter-spacing:1px}
+  .loja-halo{fill:rgba(255,204,0,.08)}
+  .loja.ze_point .loja-ico{fill:var(--amarelo);stroke:#000;stroke-width:2}
+  .loja-letra{font-family:var(--disp);font-weight:700;font-size:13px;fill:#000}
+  .loja.conveniado .loja-halo{fill:rgba(255,90,31,.10)}
+  .loja.conveniado .loja-ico{fill:#000;stroke:var(--brasa);stroke-width:3.5}
+  .loja-nome{font-size:13px;fill:#CFC9B3;paint-order:stroke;stroke:#000;stroke-width:3px}
+  .loja-badge circle{fill:var(--brasa)} .loja-badge text{font-size:10px;font-weight:700;fill:#fff}
+  .loja.ativa .loja-halo{animation:halo 1.6s ease-out infinite}
+  @keyframes halo{0%{r:10;opacity:1}100%{r:34;opacity:0}}
+  .m-historico circle{fill:#FFCC00;opacity:.18}
+  .rota-plan{fill:none;stroke:#7A7563;stroke-width:1.6;stroke-dasharray:3 5}
+  .rota-glow{fill:none;stroke:var(--brasa);stroke-width:9;stroke-linejoin:round;stroke-linecap:round;opacity:.35}
+  .rota-feita{fill:none;stroke:var(--brasa);stroke-width:3.4;stroke-linejoin:round;stroke-linecap:round}
+  .rota-ret{fill:none;stroke:var(--azul);stroke-width:1.6;stroke-dasharray:3 5;opacity:.6}
+  .rota-ret-feita{fill:none;stroke:var(--azul);stroke-width:3;stroke-linejoin:round;stroke-linecap:round;opacity:.9}
+  .dest .ring{fill:none;stroke:var(--verde);stroke-width:2;opacity:0}
+  .dest.entregue .ring{animation:ring 1.4s ease-out 2}
+  @keyframes ring{0%{r:6;opacity:1}100%{r:34;opacity:0}}
+  .dest .check{display:none}
+  .dest.entregue .check{display:block}
+  .moto-halo{fill:var(--amarelo);opacity:.18;r:20px}
+  .parado .moto-halo{animation:pulso 1.2s ease-in-out infinite alternate}
+  @keyframes pulso{from{opacity:.1}to{opacity:.35}}
+  .rot{font-size:12.5px;fill:var(--papel);paint-order:stroke;stroke:#000;stroke-width:3.5px;font-weight:600}
+  .rot.min{fill:var(--amarelo)}
+  .rot.min.cli{fill:var(--azul)}
+
+  .legenda{position:absolute;left:22px;bottom:18px;display:flex;gap:18px;font-size:14px;color:#CFC9B3;background:rgba(0,0,0,.72);padding:10px 14px;border-radius:6px}
+  .legenda span{display:flex;align-items:center;gap:7px}
+  .lg{width:12px;height:12px;display:inline-block}
+  .lg.zp{background:var(--amarelo);transform:rotate(45deg);border:1.5px solid #000}
+  .lg.cv{border:3px solid var(--brasa);border-radius:50%;background:#000}
+  .lg.mt{background:var(--amarelo);border-radius:3px;border:2px solid #000;width:16px;height:9px}
+  .lg.cr{background:var(--azul);border-radius:3px;border:2px solid #000;width:16px;height:9px}
+  .lg.rt{height:3px;width:18px;background:var(--brasa)}
+
+  .qrbox{position:absolute;right:18px;top:18px;background:var(--amarelo);color:#000;border-radius:8px;padding:12px 12px 10px;width:176px;text-align:center}
+  .qrbox #qr{background:#fff;padding:8px;border-radius:4px}
+  .qrbox #qr img{width:136px;height:136px;display:block;margin:0 auto}
+  .qrbox b{display:block;font-family:var(--disp);font-size:21px;margin-top:6px;line-height:1.05}
+
+  .toast{position:absolute;left:calc((100% - 430px)/2);bottom:74px;transform:translate(-50%,30px);opacity:0;background:var(--amarelo);color:#000;
+    padding:14px 24px;border-radius:8px;font-size:22px;max-width:calc(100% - 480px);transition:transform .45s cubic-bezier(.2,.9,.3,1.3),opacity .3s;z-index:3}
+  .toast.on{transform:translate(-50%,0);opacity:1}
+  .toast b{font-family:var(--disp);font-size:28px}
+  .toast small{display:block;font-size:16px;margin-top:2px}
+  .chips{position:absolute;left:22px;top:18px;display:flex;flex-direction:column;gap:6px;z-index:2}
+  .chip{background:rgba(0,0,0,.82);border-left:4px solid var(--amarelo);color:var(--papel);padding:8px 12px;border-radius:4px;font-size:15px;
+    animation:chip 3.6s ease-in-out forwards}
+  .chip.rota{border-color:var(--brasa)} .chip.entregue,.chip.retirado{border-color:var(--verde)} .chip.pronto{border-color:var(--azul)}
+  @keyframes chip{0%{opacity:0;transform:translateX(-14px)}8%,85%{opacity:1;transform:none}100%{opacity:0}}
+
+  /* quadro ao vivo */
+  .quadro{position:absolute;right:18px;bottom:18px;width:400px;max-height:62%;background:rgba(10,10,7,.9);border:1px solid var(--linha);border-radius:8px;
+    padding:12px 14px;display:flex;flex-direction:column;gap:10px;overflow:hidden;backdrop-filter:blur(4px)}
+  .quadro h3{font-family:var(--disp);font-size:18px;font-weight:600;color:var(--cinza);display:flex;justify-content:space-between;align-items:baseline}
+  .quadro h3 em{font-style:normal;font-size:13px;font-family:var(--txt)}
+  .lista{display:flex;flex-direction:column;gap:6px}
+  .card{display:grid;grid-template-columns:1fr auto;gap:2px 10px;padding:7px 10px 8px 12px;border-left:4px solid var(--brasa);background:#1C1B15;border-radius:4px;font-size:14px}
+  .card .n{font-weight:700;font-size:15px}
+  .card .l{color:var(--cinza);font-size:12.5px;grid-column:1/3}
+  .card .st{text-align:right;white-space:nowrap;font-family:var(--disp);font-size:17px;color:var(--amarelo)}
+  .card .bar{grid-column:1/3;height:5px;background:#2E2C24;border-radius:3px;overflow:hidden;margin-top:4px}
+  .card .bar i{display:block;height:100%;background:var(--brasa);transition:width .5s linear}
+  .card.pronto{border-color:var(--amarelo);background:#2A2308;animation:pronto 1.2s ease-in-out infinite alternate}
+  .card.pronto .bar i{background:var(--amarelo)}
+  @keyframes pronto{from{box-shadow:0 0 0 0 rgba(255,204,0,0)}to{box-shadow:0 0 14px 0 rgba(255,204,0,.35)}}
+  .card.balcao{border-color:var(--azul)} .card.balcao .st{color:var(--azul)}
+  .card.rota{border-color:var(--amarelo)} .card.rota .bar i{background:var(--amarelo)}
+  .card.fim{border-color:var(--verde);opacity:.7} .card.fim .st{color:var(--verde)} .card.fim .bar i{background:var(--verde)}
+  .card.fila{border-color:#6E6A5A} .card.fila .bar i{background:#6E6A5A}
+  .nada{color:var(--cinza);font-size:13.5px;padding:2px 0 4px}
+
+  aside{background:var(--painel);border-left:1px solid var(--linha);padding:20px 24px;display:flex;flex-direction:column;gap:20px;overflow:hidden}
+  h2{font-family:var(--disp);font-weight:600;font-size:19px;color:var(--cinza);letter-spacing:.2px;margin-bottom:10px}
+  .kpis{display:grid;grid-template-columns:.8fr 1.2fr 1fr;gap:14px 12px}
+  .kpi{min-width:0}
+  .kpi b{display:block;white-space:nowrap;font-family:var(--disp);font-size:36px;line-height:1;color:var(--amarelo);font-weight:700}
+  .kpi.sec b{font-size:28px;color:var(--papel)}
+  .kpi span{font-size:13px;color:var(--cinza)}
+  .agora{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+  .agora div{border-top:3px solid;padding-top:8px}
+  .agora b{font-family:var(--disp);font-size:36px;line-height:1;display:block}
+  .agora span{font-size:13px;color:var(--cinza)}
+  .agora .pr{border-color:var(--brasa)} .agora .ro{border-color:var(--amarelo)} .agora .ag{border-color:var(--azul)}
+  .rank{display:flex;flex-direction:column;gap:5px}
+  .rk{display:grid;grid-template-columns:170px 1fr 30px;align-items:center;gap:10px;font-size:13.5px}
+  .rk i{height:10px;border-radius:2px;background:var(--amarelo);display:block;transition:width .6s}
+  .rk.conveniado i{background:var(--brasa)}
+  .rk em{font-style:normal;text-align:right;font-family:var(--disp);font-size:18px}
+  .rk span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .feed{flex:1;min-height:0;overflow:hidden;display:flex;flex-direction:column;gap:7px}
+  .ev{font-size:14px;line-height:1.3;display:grid;grid-template-columns:44px 1fr;gap:8px;color:#D8D2BC}
+  .ev time{color:var(--cinza);font-variant-numeric:tabular-nums}
+  .ev b{color:var(--papel)}
+  .ev.checkin b{color:var(--amarelo)}
+  .vazio{color:var(--cinza);font-size:15px}
+  @media (prefers-reduced-motion:reduce){.loja.ativa .loja-halo,.card.pronto,.parado .moto-halo{animation:none}.toast{transition:none}}
+</style>
+</head>
+<body>
+<div class="tela">
+  <header>
+    <div class="marca">Zé Express Churrasco<small>Central de operações ao vivo, São Paulo</small></div>
+    <div class="ferr">
+      <button id="bDemo" title="Gera pedidos fictícios automaticamente">Pedidos automáticos</button>
+      <button id="bReset">Zerar simulação</button>
+      <button id="bFull">Tela cheia</button>
+      <button onclick="window.open('/checkins','_blank')">Check-ins</button>
+    </div>
+    <div class="relogio"><span id="hora">--:--</span><small id="escala">simulação acelerada</small></div>
+  </header>
+
+  <section class="mapa" aria-label="Mapa de operações">
+    <svg id="mapa"></svg>
+    <div class="chips" id="chips"></div>
+    <div class="qrbox"><div id="qr"></div><b>Peça seu churrasco pelo celular</b></div>
+    <div class="legenda">
+      <span><i class="lg zp"></i>Zé Point</span>
+      <span><i class="lg cv"></i>Conveniado</span>
+      <span><i class="lg mt"></i>Moto de entrega</span>
+      <span><i class="lg cr"></i>Cliente indo retirar</span>
+      <span><i class="lg rt"></i>Trajeto feito</span>
+    </div>
+    <div class="quadro" id="quadro">
+      <div><h3>Retiradas <em id="qRetN"></em></h3><div class="lista" id="qRet"></div></div>
+      <div><h3>Entregas <em id="qEntN"></em></h3><div class="lista" id="qEnt"></div></div>
+    </div>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  </section>
+
+  <aside>
+    <div>
+      <h2>Resultado da apresentação</h2>
+      <div class="kpis">
+        <div class="kpi"><b id="kPed">0</b><span>pedidos e check-ins</span></div>
+        <div class="kpi"><b id="kFat">R$ 0</b><span>faturamento</span></div>
+        <div class="kpi"><b id="kTic">R$ 0</b><span>ticket médio</span></div>
+        <div class="kpi sec"><b id="kTe">0 min</b><span>entrega média</span></div>
+        <div class="kpi sec"><b id="kTr">0 min</b><span>retirada média</span></div>
+        <div class="kpi sec"><b id="kPr">0%</b><span>escolheram retirar</span></div>
+      </div>
+    </div>
+    <div>
+      <h2>Agora</h2>
+      <div class="agora">
+        <div class="pr"><b id="aPr">0</b><span>em preparo</span></div>
+        <div class="ro"><b id="aRo">0</b><span>motos em rota</span></div>
+        <div class="ag"><b id="aAg">0</b><span>prontos para retirar</span></div>
+      </div>
+    </div>
+    <div>
+      <h2>Check-ins por ponto</h2>
+      <div class="rank" id="rank"></div>
+    </div>
+    <div class="feed" id="feedBox">
+      <h2>Movimento</h2>
+      <div id="feed"></div>
+    </div>
+  </aside>
+</div>
+
+<script src="/web/qrcode.js"></script>
+<script src="/web/mapa.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+const brl = (v, int) => v.toLocaleString("pt-BR", {style:"currency", currency:"BRL", minimumFractionDigits: int ? 0 : 2, maximumFractionDigits: int ? 0 : 2});
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const primeiro = n => n.replace(" (demo)", "").split(" ")[0];
+const km = v => String(v).replace(".", ",");
+let CFG, M, offset = 0, dados = null, ultimoId = null, histN = -1, ESC = 10;
+const objs = {};
+const fila = []; let toastOn = false;
+const XL = "http://www.w3.org/1999/xlink";
+
+async function api(u, body){
+  const r = await fetch(u, body ? {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(body)} : {});
+  return r.json();
+}
+const agora = () => Date.now()/1000 + offset;
+const hhmm = t => new Date(t*1000).toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"});
+const simMin = seg => Math.max(0, Math.ceil(seg * ESC / 60));
+
+async function init(){
+  CFG = await api("/api/config"); ESC = CFG.escala;
+  M = ZeMapa.criar($("mapa"), CFG.lojas, {sufixo:"T"});
+  const q = qrcode(0, "M"); q.addData(CFG.url_app); q.make();
+  $("qr").innerHTML = `<img alt="QR Code do app" src="${q.createDataURL(6, 0)}">`;
+  $("escala").textContent = `1 min real = ${ESC} min simulados`;
+  $("rank").innerHTML = CFG.lojas.map(l => `<div class="rk ${l.tipo}"><span>${esc(l.nome)}</span><div><i id="rk${l.id}" style="width:0"></i></div><em id="rn${l.id}">0</em></div>`).join("");
+  $("bReset").onclick = async () => { if (confirm("Apagar todos os pedidos e recomeçar a simulação?")) { await api("/api/reset", {}); ultimoId = 0; for (const id in objs) remover(id); histN = -1; poll(); } };
+  $("bDemo").onclick = async () => { const r = await api("/api/demo", {ativo: !dados?.demo}); if (dados) dados.demo = r.demo; $("bDemo").classList.toggle("on", r.demo); };
+  $("bFull").onclick = () => document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen();
+  poll(); setInterval(poll, 1000); requestAnimationFrame(frame);
+}
+function remover(id){ const o = objs[id]; if (!o) return; o.els.forEach(e => e.remove()); delete objs[id]; }
+
+async function poll(){
+  try { dados = await api("/api/estado"); } catch(e) { return; }
+  offset = dados.agora - Date.now()/1000; ESC = dados.escala;
+  $("bDemo").classList.toggle("on", dados.demo);
+  const k = dados.kpis;
+  $("kPed").textContent = k.pedidos; $("kFat").textContent = brl(k.faturamento, true); $("kTic").textContent = brl(k.ticket, true);
+  $("kTe").textContent = k.tempo_entrega + " min"; $("kTr").textContent = k.tempo_retirada + " min"; $("kPr").textContent = k.pct_retirada + "%";
+  $("aPr").textContent = k.em_preparo; $("aRo").textContent = k.em_rota; $("aAg").textContent = k.aguardando;
+  const mx = Math.max(1, ...Object.values(dados.ranking));
+  for (const id in dados.ranking){ $("rk"+id).style.width = (100*dados.ranking[id]/mx) + "%"; $("rn"+id).textContent = dados.ranking[id]; }
+  $("feed").innerHTML = dados.feed.length ? dados.feed.map(ev).join("") : `<p class="vazio">Escaneie o QR Code e faça o primeiro pedido.</p>`;
+
+  if (dados.historico.length !== histN){
+    histN = dados.historico.length; M.camadas.historico.innerHTML = "";
+    dados.historico.forEach(([lat,lon]) => { const [x,y] = ZeMapa.xy(lat,lon); ZeMapa.el("circle",{cx:x,cy:y,r:3},M.camadas.historico); });
+  }
+  const cont = {};
+  dados.ativos.forEach(p => { if (["fila","preparo","pronto"].includes(p.status)) cont[p.loja_id] = (cont[p.loja_id]||0)+1; });
+  for (const id in M.lojaEls){ const L = M.lojaEls[id], n = cont[id]||0;
+    L.g.classList.toggle("ativa", n>0); L.badge.style.display = n ? "" : "none"; L.badge.querySelector("text").textContent = n; }
+
+  const maxId = dados.ativos.reduce((m,p) => Math.max(m,p.id), 0);
+  if (ultimoId === null) ultimoId = maxId;
+  dados.ativos.filter(p => p.id > ultimoId).sort((a,b)=>a.id-b.id).forEach(p => fila.push(p));
+  ultimoId = Math.max(ultimoId, maxId);
+  if (!toastOn) proximoToast();
+
+  const vivos = new Set(dados.ativos.map(p => String(p.id)));
+  for (const id in objs) if (!vivos.has(id)) remover(id);
+  dados.ativos.forEach(montar);
+}
+
+function ev(e){
+  const n = `<b>${esc(e.nome)}</b>`;
+  const txt = {checkin:`${n} fez check-in no ${esc(e.loja)} (${esc(e.bairro)})`,
+               saiu:`Moto de ${n} saiu do ${esc(e.loja)}`,
+               entregue:`${n} recebeu o pedido em ${esc(e.bairro)}`,
+               pronto:`Pedido de ${n} pronto para retirar no ${esc(e.loja)}`,
+               retirado:`${n} retirou o pedido no ${esc(e.loja)}`}[e.tipo];
+  return `<div class="ev ${e.tipo}"><time>${hhmm(e.t)}</time><span>${txt}</span></div>`;
+}
+function proximoToast(){
+  const p = fila.shift(); if (!p){ toastOn = false; return; }
+  toastOn = true;
+  const quando = p.modo === "entrega" ? `entrega em ${p.total_min} min` : `retirada em ${p.total_min} min`;
+  $("toast").innerHTML = `<b>${esc(primeiro(p.nome))}</b> fez check-in no ${esc(p.loja_nome)}<small>${esc(p.bairro)}, ${quando}, ${brl(p.total)}</small>`;
+  $("toast").classList.add("on");
+  setTimeout(() => { $("toast").classList.remove("on"); setTimeout(proximoToast, 450); }, fila.length ? 2600 : 4200);
+}
+function chip(cls, html){
+  const c = document.createElement("div"); c.className = "chip " + cls; c.innerHTML = html;
+  const box = $("chips"); box.appendChild(c); while (box.children.length > 4) box.firstChild.remove();
+  setTimeout(() => c.remove(), 3700);
+}
+function usar(parent, id){
+  const u = ZeMapa.el("use", {}, parent); u.setAttributeNS(XL, "href", id); u.setAttribute("href", id); return u;
+}
+
+function montar(p){
+  const id = String(p.id), c = M.camadas, el = ZeMapa.el;
+  let o = objs[id];
+  const loja = CFG.lojas.find(l => l.id === p.loja_id);
+  if (!o){
+    o = objs[id] = {els: [], st: null};
+    const [dx,dy] = ZeMapa.xy(p.lat, p.lon), [lx,ly] = ZeMapa.xy(loja.lat, loja.lon);
+    o.dx = dx; o.dy = dy; o.lx = lx; o.ly = ly;
+    if (p.modo === "entrega"){
+      o.r = ZeMapa.rota(loja, p);
+      o.plan = el("polyline",{points:ZeMapa.str(o.r.p), class:"rota-plan"}, c.rotas);
+      o.glow = el("polyline",{points:"", class:"rota-glow", filter:"url(#glowT)"}, c.rotas);
+      o.feita = el("polyline",{points:"", class:"rota-feita"}, c.rotas);
+      o.vei = el("g",{class:"vei parado"}, c.motos);
+      el("circle",{r:17,class:"moto-halo"}, o.vei);
+      o.ico = usar(o.vei, "#icoMotoT");
+      o.els.push(o.plan, o.glow, o.feita, o.vei);
+    } else {
+      o.r = ZeMapa.rota(p, loja);                       // cliente vai de casa até o ponto
+      o.plan = el("polyline",{points:ZeMapa.str(o.r.p), class:"rota-ret"}, c.rotas);
+      o.feita = el("polyline",{points:"", class:"rota-ret-feita"}, c.rotas);
+      o.vei = el("g",{class:"vei", style:"display:none"}, c.motos);
+      o.ico = usar(o.vei, "#icoCarroT");
+      o.els.push(o.plan, o.feita, o.vei);
+    }
+    o.dest = el("g",{class:"dest", transform:`translate(${dx},${dy})`}, c.destinos);
+    el("circle",{r:6,class:"ring"}, o.dest);
+    usar(o.dest, "#icoCasaT");
+    const chk = el("g",{class:"check", transform:"translate(8,-9)"}, o.dest);
+    el("circle",{r:7, fill:"#3DD68C", stroke:"#000", "stroke-width":1.5}, chk);
+    el("path",{d:"M-3.2,0 L-1,2.4 L3.4,-2.6", fill:"none", stroke:"#000", "stroke-width":2, "stroke-linecap":"round", "stroke-linejoin":"round"}, chk);
+    o.rot = el("text",{class:"rot"}, c.rotulos);
+    o.rotMin = el("text",{class:"rot min" + (p.modo==="retirada" ? " cli" : "")}, c.rotulos);
+    o.els.push(o.dest, o.rot, o.rotMin);
+  }
+  o.p = p;
+}
+
+function veiculo(o, pt, mostrar){
+  o.vei.style.display = mostrar ? "" : "none";
+  if (mostrar){
+    o.vei.setAttribute("transform", `translate(${pt.x.toFixed(1)},${pt.y.toFixed(1)})`);
+    o.ico.setAttribute("transform", `rotate(${((pt.ang||0)*180/Math.PI).toFixed(1)}) scale(1.35)`);
+  }
+}
+function transicao(o, st){
+  if (o.st === st) return;
+  const p = o.p, n = esc(primeiro(p.nome)), antes = o.st; o.st = st;
+  if (antes === null) return;                       // primeira leitura: sem aviso
+  if (st === "rota")     chip("rota", `Moto de <b>${n}</b> saiu do ${esc(p.loja_nome)}, ${km(p.dist_km)} km até ${esc(p.bairro)}`);
+  if (st === "entregue") chip("entregue", `<b>${n}</b> recebeu o churrasco em ${esc(p.bairro)}`);
+  if (st === "pronto")   chip("pronto", `Pedido de <b>${n}</b> pronto para retirar no ${esc(p.loja_nome)}`);
+  if (st === "retirado") chip("retirado", `<b>${n}</b> retirou o pedido no ${esc(p.loja_nome)}`);
+}
+
+function frame(){
+  const t = agora();
+  $("hora").textContent = new Date(t*1000).toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit",second:"2-digit"});
+  const ret = [], ent = [];
+  for (const id in objs){
+    const o = objs[id], p = o.p; if (!p) continue;
+    const nome = primeiro(p.nome);
+    let x = o.dx, y = o.dy, txt = "", min = "", st;
+    if (p.modo === "entrega"){
+      if (t < p.t_prep_fim){
+        st = t < p.t_prep_ini ? "fila" : "preparo";
+        veiculo(o, {x:o.lx + 16, y:o.ly + 12, ang:0}, true); o.vei.classList.add("parado");
+        o.feita.setAttribute("points",""); o.glow.setAttribute("points","");
+        x = o.lx + 16; y = o.ly + 12; txt = nome + (st === "fila" ? ", na fila" : ", preparando"); min = simMin(p.t_prep_fim - t) + " min";
+      } else if (t < p.t_fim){
+        st = "rota";
+        const f = (t - p.t_saida) / (p.t_fim - p.t_saida), pt = ZeMapa.ponto(o.r, f), tr = ZeMapa.str(ZeMapa.trecho(o.r, f));
+        o.vei.classList.remove("parado"); veiculo(o, pt, true);
+        o.feita.setAttribute("points", tr); o.glow.setAttribute("points", tr);
+        x = pt.x; y = pt.y; txt = nome + ", a caminho"; min = Math.max(1, simMin(p.t_fim - t)) + " min";
+      } else {
+        st = "entregue";
+        veiculo(o, null, false); o.feita.setAttribute("points", ZeMapa.str(o.r.p)); o.glow.setAttribute("points","");
+        o.dest.classList.add("entregue"); txt = nome + ", entregue";
+        const vida = 1 - Math.min(1, (t - p.t_fim)/45);
+        [o.feita,o.plan,o.dest,o.rot,o.rotMin].forEach(e => e.style.opacity = vida.toFixed(2));
+      }
+      ent.push({p, st});
+    } else {
+      const chegada = p.t_saida + p.desloc_min*60/ESC, fimReal = p.t_retirado || p.t_fim;
+      const pronto = t >= p.t_prep_fim, retirado = t >= fimReal;
+      if (retirado){
+        st = "retirado"; veiculo(o, null, false); o.dest.classList.add("entregue"); txt = nome + ", retirado"; min = "";
+        const vida = 1 - Math.min(1, (t - fimReal)/45);
+        [o.feita,o.plan,o.dest,o.rot,o.rotMin].forEach(e => e.style.opacity = Math.max(0,vida).toFixed(2));
+      } else if (t >= p.t_saida && t < chegada){
+        const f = (t - p.t_saida) / (chegada - p.t_saida), pt = ZeMapa.ponto(o.r, f);
+        veiculo(o, pt, true); o.feita.setAttribute("points", ZeMapa.str(ZeMapa.trecho(o.r, f)));
+        x = pt.x; y = pt.y; txt = nome + (pronto ? ", indo buscar" : ", saiu de casa"); min = "chega em " + Math.max(1, simMin(chegada - t)) + " min";
+        st = pronto ? "pronto" : (t < p.t_prep_ini ? "fila" : "preparo");
+      } else if (t >= chegada){
+        veiculo(o, {x:o.lx - 16, y:o.ly + 12, ang:0}, true); o.feita.setAttribute("points", ZeMapa.str(o.r.p));
+        x = o.lx - 16; y = o.ly + 12; txt = nome + ", no balcão"; min = pronto ? "" : "kit sai em " + simMin(p.t_prep_fim - t) + " min";
+        st = pronto ? "pronto" : "balcao";
+      } else {
+        veiculo(o, null, false); txt = nome + ", vai retirar"; min = simMin(p.t_prep_fim - t) + " min p/ ficar pronto";
+        st = pronto ? "pronto" : (t < p.t_prep_ini ? "fila" : "preparo");
+      }
+      ret.push({p, st, chegada});
+    }
+    transicao(o, st);
+    o.rot.setAttribute("x", x + 16); o.rot.setAttribute("y", y - 3); o.rot.textContent = txt;
+    o.rotMin.setAttribute("x", x + 16); o.rotMin.setAttribute("y", y + 12); o.rotMin.textContent = min;
+  }
+  quadro(ret, ent, t);
+  requestAnimationFrame(frame);
+}
+
+/* ---- quadro ao vivo (só mexe no DOM quando o texto muda) ---- */
+const ordem = {pronto:0, balcao:1, preparo:2, rota:2, fila:3, retirado:9, entregue:9};
+let quadroCache = "";
+function pctPrep(p, t){ return Math.max(0, Math.min(100, 100*(t - p.t_prep_ini)/(p.t_prep_fim - p.t_prep_ini))); }
+function quadro(ret, ent, t){
+  const linhaRet = ({p, st, chegada}) => {
+    const n = esc(primeiro(p.nome)), l = esc(p.loja_nome);
+    const pct = st === "fila" ? 0 : (st === "preparo" || st === "balcao") ? pctPrep(p, t) : 100;
+    const stTxt = {fila:"na fila", preparo:`preparando, ${simMin(p.t_prep_fim - t)} min`, balcao:`cliente no balcão, ${simMin(p.t_prep_fim - t)} min`,
+                   pronto:"pronto", retirado:"retirado"}[st];
+    const sub = st === "pronto" ? (t < chegada ? `aguardando ${n}, chega em ${Math.max(1, simMin(chegada - t))} min` : "entregando no balcão")
+              : st === "retirado" ? "bom churrasco" : (t >= p.t_saida && t < chegada) ? `${l}, ${n} já saiu de casa e chega em ${Math.max(1, simMin(chegada - t))} min` : `${p.codigo}, ${l}`;
+    return `<div class="card ${st === "retirado" ? "fim" : st}"><span class="n">${n}</span><span class="st">${stTxt}</span><span class="l">${sub}</span><div class="bar"><i style="width:${pct.toFixed(0)}%"></i></div></div>`;
+  };
+  const linhaEnt = ({p, st}) => {
+    const n = esc(primeiro(p.nome)), l = esc(p.loja_nome);
+    const pct = st === "fila" ? 0 : st === "preparo" ? pctPrep(p, t) : st === "rota" ? Math.min(100, 100*(t - p.t_saida)/(p.t_fim - p.t_saida)) : 100;
+    const stTxt = {fila:"na fila", preparo:`preparando, ${simMin(p.t_prep_fim - t)} min`, rota:`chega em ${Math.max(1, simMin(p.t_fim - t))} min`, entregue:"entregue"}[st];
+    const sub = st === "rota" ? `moto a caminho de ${esc(p.bairro)}, ${km(p.dist_km)} km` : st === "entregue" ? "bom churrasco" : `${p.codigo}, ${l}`;
+    return `<div class="card ${st === "entregue" ? "fim" : st}"><span class="n">${n}</span><span class="st">${stTxt}</span><span class="l">${sub}</span><div class="bar"><i style="width:${pct.toFixed(0)}%"></i></div></div>`;
+  };
+  const sortf = (a,b) => (ordem[a.st] - ordem[b.st]) || (b.p.id - a.p.id);
+  const R = ret.sort(sortf).slice(0, 5), E = ent.sort(sortf).slice(0, 4);
+  const nr = ret.filter(r => r.st !== "retirado").length, ne = ent.filter(e => e.st !== "entregue").length;
+  const html = (R.length ? R.map(linhaRet).join("") : `<div class="nada">Nenhuma retirada em andamento</div>`) + "\u0001" +
+               (E.length ? E.map(linhaEnt).join("") : `<div class="nada">Nenhuma entrega em andamento</div>`) + "\u0001" + nr + "\u0001" + ne;
+  if (html === quadroCache) return; quadroCache = html;
+  $("qRet").innerHTML = R.length ? R.map(linhaRet).join("") : `<div class="nada">Nenhuma retirada em andamento</div>`;
+  $("qEnt").innerHTML = E.length ? E.map(linhaEnt).join("") : `<div class="nada">Nenhuma entrega em andamento</div>`;
+  $("qRetN").textContent = nr > 0 ? `${nr} em andamento` : ""; $("qEntN").textContent = ne > 0 ? `${ne} em andamento` : "";
+}
+init();
+</script>
+</body>
+</html>

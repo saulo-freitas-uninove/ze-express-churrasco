@@ -1,0 +1,211 @@
+{
+  "nome": "Zé Express Churrasco",
+  "porta": 8170,
+  "ip_manual": "",
+  "rede_wifi": "",
+  "escala_tempo": 10,
+  "velocidade_moto_kmh": 24,
+  "fator_ruas": 1.35,
+  "minutos_saida_moto": 2,
+  "velocidade_cliente_kmh": 28,
+  "minutos_saida_cliente": 3,
+  "desconto_retirada_pct": 5,
+  "taxa_entrega_base": 7.9,
+  "taxa_entrega_por_km_acima_2km": 1.2,
+  "frete_gratis_acima": 250,
+  "demo_intervalo_seg": 10,
+  "tipos_loja": {
+    "ze_point": {
+      "nome": "Zé Point",
+      "preparo_base_min": 8,
+      "capacidade": 3
+    },
+    "conveniado": {
+      "nome": "Conveniado",
+      "preparo_base_min": 18,
+      "capacidade": 2
+    }
+  },
+  "lojas": [
+    {
+      "id": "ZP1",
+      "tipo": "ze_point",
+      "nome": "Zé Point Pinheiros",
+      "lat": -23.5665,
+      "lon": -46.6905
+    },
+    {
+      "id": "ZP2",
+      "tipo": "ze_point",
+      "nome": "Zé Point Tatuapé",
+      "lat": -23.5405,
+      "lon": -46.576
+    },
+    {
+      "id": "ZP3",
+      "tipo": "ze_point",
+      "nome": "Zé Point Santana",
+      "lat": -23.502,
+      "lon": -46.628
+    },
+    {
+      "id": "ZP4",
+      "tipo": "ze_point",
+      "nome": "Zé Point Vila Mariana",
+      "lat": -23.589,
+      "lon": -46.636
+    },
+    {
+      "id": "CV1",
+      "tipo": "conveniado",
+      "nome": "Açougue Parceiro Mooca",
+      "lat": -23.556,
+      "lon": -46.6
+    },
+    {
+      "id": "CV2",
+      "tipo": "conveniado",
+      "nome": "Casa de Carnes Butantã",
+      "lat": -23.575,
+      "lon": -46.721
+    },
+    {
+      "id": "CV3",
+      "tipo": "conveniado",
+      "nome": "Boutique de Carnes Moema",
+      "lat": -23.603,
+      "lon": -46.665
+    },
+    {
+      "id": "CV4",
+      "tipo": "conveniado",
+      "nome": "Açougue Parceiro Lapa",
+      "lat": -23.522,
+      "lon": -46.705
+    },
+    {
+      "id": "CV5",
+      "tipo": "conveniado",
+      "nome": "Casa de Carnes Itaquera",
+      "lat": -23.54,
+      "lon": -46.46
+    },
+    {
+      "id": "CV6",
+      "tipo": "conveniado",
+      "nome": "Açougue Parceiro Santo Amaro",
+      "lat": -23.65,
+      "lon": -46.705
+    }
+  ],
+  "catalogo": [
+    {
+      "id": "K1",
+      "grupo": "Kits",
+      "nome": "Kit Churrasco Rápido",
+      "desc": "4 pessoas: contrafilé, linguiça toscana, coxinha da asa, pão de alho, farofa e carvão 3 kg",
+      "preco": 139.9,
+      "onde": "todas",
+      "preparo_extra_min": 0
+    },
+    {
+      "id": "K2",
+      "grupo": "Kits",
+      "nome": "Kit Família",
+      "desc": "8 pessoas: fraldinha, contrafilé, linguiça, frango, pão de alho, farofa, vinagrete e carvão 5 kg",
+      "preco": 259.9,
+      "onde": "todas",
+      "preparo_extra_min": 2
+    },
+    {
+      "id": "K3",
+      "grupo": "Kits",
+      "nome": "Kit Frango & Linguiça",
+      "desc": "4 pessoas: linguiça toscana, coxa e sobrecoxa temperadas e carvão 3 kg",
+      "preco": 89.9,
+      "onde": "todas",
+      "preparo_extra_min": 0
+    },
+    {
+      "id": "K4",
+      "grupo": "Kits",
+      "nome": "Kit Premium Picanha",
+      "desc": "6 pessoas: picanha e ancho cortados na hora, pão de alho e farofa. Só nos conveniados",
+      "preco": 349.9,
+      "onde": "conveniado",
+      "preparo_extra_min": 6
+    },
+    {
+      "id": "A1",
+      "grupo": "Adicionais",
+      "nome": "Carvão 5 kg",
+      "desc": "",
+      "preco": 29.9,
+      "onde": "todas",
+      "preparo_extra_min": 0
+    },
+    {
+      "id": "A2",
+      "grupo": "Adicionais",
+      "nome": "Pão de alho (6 un.)",
+      "desc": "",
+      "preco": 14.9,
+      "onde": "todas",
+      "preparo_extra_min": 0
+    },
+    {
+      "id": "A3",
+      "grupo": "Adicionais",
+      "nome": "Queijo coalho (espetos)",
+      "desc": "",
+      "preco": 22.9,
+      "onde": "todas",
+      "preparo_extra_min": 0
+    },
+    {
+      "id": "A4",
+      "grupo": "Adicionais",
+      "nome": "Gelo 5 kg",
+      "desc": "",
+      "preco": 12.9,
+      "onde": "todas",
+      "preparo_extra_min": 0
+    },
+    {
+      "id": "B1",
+      "grupo": "Bebidas",
+      "nome": "Cerveja lata 350 ml (12 un.)",
+      "desc": "",
+      "preco": 49.9,
+      "onde": "todas",
+      "preparo_extra_min": 0
+    },
+    {
+      "id": "B2",
+      "grupo": "Bebidas",
+      "nome": "Refrigerante 2 L",
+      "desc": "",
+      "preco": 11.9,
+      "onde": "todas",
+      "preparo_extra_min": 0
+    },
+    {
+      "id": "B3",
+      "grupo": "Bebidas",
+      "nome": "Água mineral 1,5 L (6 un.)",
+      "desc": "",
+      "preco": 19.9,
+      "onde": "todas",
+      "preparo_extra_min": 0
+    },
+    {
+      "id": "B4",
+      "grupo": "Bebidas",
+      "nome": "Cerveja sem álcool lata (6 un.)",
+      "desc": "",
+      "preco": 27.9,
+      "onde": "todas",
+      "preparo_extra_min": 0
+    }
+  ]
+}

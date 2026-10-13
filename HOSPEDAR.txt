@@ -1,0 +1,6 @@
+HOSPEDAR GRATIS NO RENDER (resumo)
+1. Crie conta no github.com e um repositorio novo; envie o CONTEUDO desta pasta (server.py, config.json, web/, render.yaml...).
+2. Crie conta em render.com (entre com o GitHub) > New + > Web Service > escolha o repositorio.
+3. Language: Python 3 | Build Command: echo ok | Start Command: python server.py | Instance Type: Free.
+4. Deploy. O endereco sera https://NOME.onrender.com  (telao em /telao, QR em /qr, check-ins em /checkins).
+Obs.: no plano gratis o site dorme apos 15 min sem acesso (1o acesso demora ~1 min) e os dados do banco zeram quando reinicia.

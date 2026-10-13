@@ -1,0 +1,9 @@
+COLOCAR NA INTERNET SEM CRIAR CONTA
+1. Baixe cloudflared-windows-amd64.exe em:
+   https://github.com/cloudflare/cloudflared/releases/latest
+   Renomeie para cloudflared.exe e coloque nesta pasta.
+2. Dois cliques em INICIAR.bat (deixe a janela aberta).
+3. Dois cliques em TUNEL.bat. Aparece um link https://algo.trycloudflare.com
+4. Abra esse link + /telao no notebook (o QR ja vai apontar para o link publico)
+   e a plateia acessa de qualquer lugar, com 4G ou Wi-Fi.
+O link muda toda vez que voce reabre o TUNEL.bat. O notebook precisa ficar ligado.

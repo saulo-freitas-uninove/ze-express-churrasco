@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: ze-express-churrasco
+    runtime: python
+    plan: free
+    buildCommand: echo "sem dependencias"
+    startCommand: python server.py
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9

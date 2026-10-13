@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Zé Express Churrasco · Check-ins</title>
+<style>
+  :root{--preto:#000;--amarelo:#FFCC00;--brasa:#FF5A1F;--verde:#3DD68C;--azul:#5CC8FF;--painel:#15140F;--linha:#2B2922;--cinza:#8F8B7C;--papel:#FFF6D6;
+    --disp:"Bahnschrift Condensed","Bahnschrift","Arial Narrow","Roboto Condensed",sans-serif;--txt:"Bahnschrift","Segoe UI",system-ui,sans-serif}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;background:var(--preto);color:var(--papel);font-family:var(--txt)}
+  body{display:flex;flex-direction:column;height:100vh;overflow:hidden}
+  header{display:flex;align-items:center;gap:22px;padding:14px 26px;border-bottom:1px solid var(--linha)}
+  .marca{font-family:var(--disp);font-weight:700;font-size:40px;letter-spacing:-.5px;line-height:1;color:var(--amarelo)}
+  .marca small{display:block;font-family:var(--txt);font-weight:400;font-size:15px;color:var(--cinza);margin-top:4px}
+  .acoes{margin-left:auto;display:flex;gap:10px;align-items:center}
+  .acoes a,.acoes button{font:inherit;font-size:14px;background:#000;color:var(--papel);border:1px solid #4a473c;border-radius:5px;padding:8px 13px;cursor:pointer;text-decoration:none}
+  .acoes a.csv{background:var(--amarelo);color:#000;border-color:var(--amarelo);font-weight:700}
+  .acoes label{font-size:14px;color:var(--cinza);display:flex;gap:6px;align-items:center;margin-right:8px}
+  .resumo{display:grid;grid-template-columns:repeat(6,1fr);gap:14px;padding:18px 26px;border-bottom:1px solid var(--linha);background:var(--painel)}
+  .r b{display:block;font-family:var(--disp);font-size:44px;line-height:1;color:var(--amarelo);font-weight:700;white-space:nowrap}
+  .r span{font-size:13px;color:var(--cinza)}
+  .r .bar{height:6px;background:#2E2C24;border-radius:3px;margin-top:8px;overflow:hidden;width:80%}
+  .r .bar i{display:block;height:100%;background:var(--amarelo)}
+  .cidades{grid-column:5/7}
+  .cidades b{font-size:24px;line-height:1.2;white-space:normal;color:var(--papel)}
+  main{flex:1;overflow:auto;padding:0 26px 26px}
+  table{width:100%;border-collapse:collapse;font-size:15px;margin-top:14px}
+  th{position:sticky;top:0;background:#000;text-align:left;font-family:var(--disp);font-weight:600;font-size:16px;color:var(--cinza);padding:12px 10px 8px;border-bottom:1px solid var(--linha)}
+  td{padding:9px 10px;border-bottom:1px solid #1E1D17;vertical-align:top}
+  tr.novo td{animation:novo 2.4s ease-out}
+  @keyframes novo{from{background:#3A2E00}to{background:transparent}}
+  td.n{font-weight:700;font-size:16px}
+  td.hora{color:var(--cinza);font-variant-numeric:tabular-nums;white-space:nowrap}
+  .sim{color:var(--verde);font-weight:700}.nao{color:var(--brasa);font-weight:700}.ns{color:var(--cinza)}
+  .zp{display:inline-block;background:var(--amarelo);color:#000;border-radius:3px;padding:1px 6px;font-size:12px;margin-left:6px}
+  .cv{display:inline-block;background:var(--brasa);color:#fff;border-radius:3px;padding:1px 6px;font-size:12px;margin-left:6px}
+  td.demo,tr.demo td{opacity:.55}
+  .vazio{padding:40px 0;color:var(--cinza);font-size:17px}
+  .hide{display:none!important}
+</style>
+</head>
+<body>
+<header>
+  <div class="marca">Check-ins da apresentação<small>Quem pediu, de onde é e se usaria o Zé Express Churrasco</small></div>
+  <div class="acoes">
+    <label><input type="checkbox" id="chkDemo"> incluir pedidos automáticos</label>
+    <a class="csv" href="/api/checkins.csv" download>Baixar CSV</a>
+    <a href="/telao" target="_blank">Abrir telão</a>
+  </div>
+</header>
+<section class="resumo">
+  <div class="r"><b id="rChk">0</b><span>check-ins</span></div>
+  <div class="r"><b id="rPes">0</b><span>pessoas diferentes</span></div>
+  <div class="r"><b id="rAlu">0%</b><span id="rAluT">são alunos</span><div class="bar"><i id="bAlu" style="width:0"></i></div></div>
+  <div class="r"><b id="rUsa">0%</b><span id="rUsaT">usariam o app</span><div class="bar"><i id="bUsa" style="width:0"></i></div></div>
+  <div class="r cidades"><b id="rCid">—</b><span>de onde vieram (mais citados)</span></div>
+</section>
+<main>
+  <table>
+    <thead><tr><th>Hora</th><th>Nome</th><th>Aluno(a)</th><th>Onde mora</th><th>Churrasco em</th><th>Check-in no ponto</th><th>Modo</th><th>Valor</th><th>Usaria o app</th></tr></thead>
+    <tbody id="corpo"></tbody>
+  </table>
+  <p class="vazio hide" id="vazio">Nenhum check-in ainda. Os pedidos feitos pelo celular aparecem aqui na hora.</p>
+</main>
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const brl = v => v.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
+const hhmm = t => new Date(t*1000).toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"});
+const sn = v => v === 1 ? `<span class="sim">Sim</span>` : v === 0 ? `<span class="nao">Não</span>` : `<span class="ns">–</span>`;
+let vistos = new Set(), primeira = true;
+$("chkDemo").onchange = () => { vistos = new Set(); primeira = true; carregar(); };
+
+async function carregar(){
+  let d; try { d = await (await fetch("/api/checkins")).json(); } catch(e){ return; }
+  const incDemo = $("chkDemo").checked;
+  const lista = d.checkins.filter(p => incDemo || !p.demo);
+  const n = lista.length;
+  const alu = lista.filter(p => p.aluno === 1).length, aluResp = lista.filter(p => p.aluno != null).length;
+  const usa = lista.filter(p => p.usaria === 1).length, usaResp = lista.filter(p => p.usaria != null).length;
+  $("rChk").textContent = n;
+  $("rPes").textContent = new Set(lista.map(p => (p.nome || "").trim().toLowerCase())).size;
+  const pa = aluResp ? Math.round(100*alu/aluResp) : 0, pu = usaResp ? Math.round(100*usa/usaResp) : 0;
+  $("rAlu").textContent = pa + "%"; $("bAlu").style.width = pa + "%"; $("rAluT").textContent = `são alunos (${alu} de ${aluResp})`;
+  $("rUsa").textContent = pu + "%"; $("bUsa").style.width = pu + "%"; $("rUsaT").textContent = `usariam o app (${usa} de ${usaResp})`;
+  const cid = {};
+  lista.forEach(p => { const m = (p.mora || "").trim(); if (m) cid[m.toLowerCase()] = cid[m.toLowerCase()] || {n:0, t:m}; if (m) cid[m.toLowerCase()].n++; });
+  const top = Object.values(cid).sort((a,b) => b.n - a.n).slice(0, 4);
+  $("rCid").textContent = top.length ? top.map(c => `${c.t} (${c.n})`).join(", ") : "—";
+
+  $("vazio").classList.toggle("hide", n > 0);
+  $("corpo").innerHTML = lista.map(p => `<tr class="${p.demo ? "demo" : ""}${!primeira && !vistos.has(p.id) ? " novo" : ""}">
+      <td class="hora">${hhmm(p.t_criado)}</td><td class="n">${esc(p.nome)}</td><td>${sn(p.aluno)}</td><td>${esc(p.mora) || "<span class='ns'>–</span>"}</td>
+      <td>${esc(p.bairro)}</td><td>${esc(p.loja_nome)}<span class="${p.loja_tipo === "ze_point" ? "zp" : "cv"}">${p.loja_tipo === "ze_point" ? "Zé Point" : "Conveniado"}</span></td>
+      <td>${p.modo === "entrega" ? "Entrega" : "Retirada"}</td><td>${brl(p.total)}</td><td>${sn(p.usaria)}</td></tr>`).join("");
+  lista.forEach(p => vistos.add(p.id)); primeira = false;
+}
+carregar(); setInterval(carregar, 3000);
+</script>
+</body>
+</html>

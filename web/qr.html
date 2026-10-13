@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Zé Express Churrasco · Peça pelo celular</title>
+<style>
+  :root{--disp:"Bahnschrift Condensed","Bahnschrift","Arial Narrow",sans-serif;--txt:"Bahnschrift","Segoe UI",system-ui,sans-serif}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{background:#FFCC00;color:#000;font-family:var(--txt);display:grid;grid-template-columns:1.1fr 1fr;align-items:center;gap:6vw;padding:5vw 7vw}
+  h1{font-family:var(--disp);font-weight:700;font-size:clamp(48px,7.4vw,130px);line-height:.92;letter-spacing:-1px}
+  p{font-size:clamp(18px,1.8vw,30px);margin-top:3vh;max-width:24ch}
+  .passos{margin-top:4vh;font-size:clamp(16px,1.4vw,24px);line-height:1.6}
+  .passos b{font-family:var(--disp)}
+  .qr{background:#fff;padding:2.2vw;border-radius:18px;box-shadow:12px 12px 0 #000}
+  .qr svg{width:100%;height:auto;display:block}
+  .url{font-family:var(--disp);font-size:clamp(20px,2vw,34px);text-align:center;margin-top:18px;word-break:break-all}
+  .alt{font-size:14px;text-align:center;margin-top:6px;opacity:.7}
+  a{color:inherit}
+</style>
+</head>
+<body>
+  <div>
+    <h1>Aponte a câmera e peça seu churrasco</h1>
+    <p id="wifi">Conecte o celular na mesma rede Wi-Fi do apresentador.</p>
+    <div class="passos"><b>1.</b> Monte o kit &nbsp; <b>2.</b> Digite o CEP &nbsp; <b>3.</b> Escolha retirar ou receber &nbsp; <b>4.</b> Veja sua moto no telão</div>
+  </div>
+  <div><div class="qr" id="qr"></div><div class="url" id="url"></div><div class="alt" id="alt"></div></div>
+<script src="/web/qrcode.js"></script>
+<script>
+fetch("/api/config").then(r => r.json()).then(c => {
+  const q = qrcode(0, "M"); q.addData(c.url_app); q.make();
+  document.getElementById("qr").innerHTML = q.createSvgTag({cellSize:8, margin:0, scalable:true});
+  document.getElementById("url").textContent = c.url_app.replace("http://","");
+  if (c.rede_wifi) document.getElementById("wifi").textContent = `Conecte o celular na rede Wi-Fi “${c.rede_wifi}”.`;
+  const outros = c.ips.filter(u => u !== c.url_app);
+  if (outros.length) document.getElementById("alt").innerHTML = "Outros endereços desta máquina: " + outros.map(u => u.replace("http://","")).join(", ");
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,44 @@
+ZÉ EXPRESS CHURRASCO - protótipo do Projeto Integrador (UNINOVE)
+====================================================================
+
+REQUISITO: Python 3.9 ou superior (python.org). Não precisa instalar nada com pip.
+
+COMO USAR NA APRESENTAÇÃO
+1. Ligue o roteador ou o hotspot do celular e conecte o notebook e a plateia NA MESMA REDE.
+2. Na primeira vez, rode LIBERAR_FIREWALL.bat como administrador (senão os celulares não acessam).
+3. Dê dois cliques em INICIAR.bat. Abrem duas abas:
+     /telao  -> mapa ao vivo com motos, check-ins e indicadores (projete esta)
+     /qr     -> QR Code grande para a plateia escanear
+   Há ainda /checkins (botão "Check-ins" no telão): lista quem fez check-in com nome, se é aluno,
+   onde mora, ponto, modo, valor e se usaria o app, com resumo em % e botão "Baixar CSV" (abre no Excel).
+   O telão também tem um QR menor no canto do mapa.
+4. Antes de começar, clique em "Zerar simulação" (canto inferior direito do mapa).
+5. "Pedidos automáticos" gera pedidos fictícios a cada 10 s, útil para ensaiar ou encher o mapa.
+
+SE O QR APONTAR PARA O IP ERRADO (notebook com mais de uma rede)
+   A janela preta do servidor lista todos os IPs. Coloque o certo em config.json, campo "ip_manual",
+   por exemplo "192.168.43.120", e reinicie. Em "rede_wifi" você pode escrever o nome da rede
+   para aparecer na tela do QR.
+
+REGRAS DA SIMULAÇÃO (config.json)
+   escala_tempo ............ 10 = 1 minuto real vale 10 minutos simulados
+   tipos_loja .............. preparo base e quantos pedidos cada ponto prepara ao mesmo tempo
+   velocidade_moto_kmh ..... velocidade média da moto
+   fator_ruas .............. distância em linha reta x fator = distância pelas ruas
+   desconto_retirada_pct, taxa_entrega_*, frete_gratis_acima
+   lojas / catalogo ........ pontos (lat/lon), kits, adicionais e bebidas com preço
+
+   Retirada: sugere o ponto mais perto do endereço. Tempo = fila + preparo. O cliente sai de casa
+     (carro azul no mapa) para chegar quando o kit fica pronto; "retirado" quando ele chega ao ponto.
+   Entrega: escolhe o ponto que entrega mais rápido (considera a fila). Tempo = fila + preparo + trajeto.
+     A moto fica parada no ponto durante o preparo e sai quando o kit fica pronto.
+   velocidade_cliente_kmh / minutos_saida_cliente: deslocamento do cliente na retirada.
+   O quadro "Retiradas / Entregas" no canto do mapa mostra cada pedido evoluindo em tempo real.
+   Kit Premium Picanha só existe nos conveniados (corte na hora).
+   Cada pedido registra o check-in da pessoa no ponto que atendeu.
+
+LIMITAÇÕES ASSUMIDAS (fins acadêmicos)
+   - CEP -> localização por faixa de CEP do bairro (aproximada), só município de São Paulo.
+     CEP de fora da cidade: o app pede para escolher um bairro.
+   - Mapa vetorial estilizado de SP (contorno, zonas, rios, grandes vias), sem ruas reais.
+   - Dados ficam em dados\zeexpress.db (SQLite). Apagar o arquivo também zera tudo.
